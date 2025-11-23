@@ -1,0 +1,115 @@
+import os
+from datetime import datetime
+fileName = "budget.txt"
+def loadDataOld():
+   if os.path.exists(fileName):
+        f = open(fileName,"r")
+        ls = f.readlines()
+        f.close()
+        if len(ls)>2:
+             try:
+                tb = float(ls[0].strip())
+             except:
+                tb = 0
+             try:
+                sp = float(ls[1].strip())
+             except:
+                sp = 0
+             ex = ls[2].strip().split(",")
+             if ex==['']: ex=[]
+             return tb, sp, ex
+   return None, None, None
+def saveData(a,b,c):
+    w = open(fileName,"w")
+    w.write(str(a)+"\n")
+    w.write(str(b)+"\n")
+    w.write(",".join(c))
+    w.close()
+def main():
+   print("BUDGET BUDDY - Your Money Friend")
+   print("="*40)
+   old = loadDataOld()
+   if old[0] is None:
+       print("First time? setting budget")
+       ok=False
+       while not ok:
+            try:
+               inpt = input("Total budget this month? ₹")
+               t = float(inpt)
+               if t>0:
+                   ok=True
+                   totalBudget = t
+               else:
+                   print("positive number pls")
+            except:
+               print("enter number only")
+       spent = 0
+       exps = []
+       saveData(totalBudget, spent, exps)
+       print("Budget set: ₹"+str(totalBudget))
+   else:
+       totalBudget, spent, exps = old
+       rem = totalBudget - spent
+       print("Welcome back")
+       print("Total Budget :",totalBudget)
+       print("Already Spent:",spent)
+       print("Remaining    :",rem)
+   while True:
+      print("\n"+"-"*40)
+      print("1 add expense")
+      print("2 view expenses")
+      print("3 check remaining")
+      print("4 quit")
+      ch = input("choose 1-4: ")
+      if ch=="1":
+            try:
+                 am = float(input("How much? ₹"))
+                 cat = input("what for? ")
+                 if am>0:
+                     spent = spent + am
+                     exps.append(cat+": ₹"+str(am))
+                     saveData(totalBudget, spent, exps)
+
+                     rem = totalBudget - spent
+                     print("Added ₹"+str(am)+" on "+cat)
+
+                     if rem<=0:
+                         print("NO MONEY LEFT")
+                     elif rem < totalBudget*0.2:
+                         print("low money warning!!")
+                     elif rem < totalBudget*0.5:
+                         print("half gone already")
+                 else:
+                     print("positive num pls")
+            except:
+                 print("not a valid number")
+      elif ch=="2":
+           print("\nYour expenses")
+           if exps:
+               i=1
+               for e in exps:
+                   print(str(i)+". "+e)
+                   i+=1
+               print("\nTotal spent: ₹"+str(spent))
+           else:
+               print("no expenses yet")
+      elif ch=="3":
+           rem = totalBudget - spent
+           print("\nBudget Summary")
+           print("Total Budget :",totalBudget)
+           print("Spent        :",spent)
+           print("Remaining    :",rem)
+           if rem>0:
+              dd = 30 - datetime.now().day
+              if dd>0:
+                   safe = rem/dd
+                   print("safe daily spend: ₹"+str(int(safe)))
+           else:
+              print("over budget")
+      elif ch=="4":
+           print("saved. bye")
+           break
+      else:
+           print("choose 1-4")
+if __name__=="__main__":
+     main()
